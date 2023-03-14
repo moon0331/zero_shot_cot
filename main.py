@@ -14,8 +14,8 @@ def main():
     
     fix_seed(args.random_seed)
     
-    print("OPENAI_API_KEY:")
-    print(os.getenv("OPENAI_API_KEY"))
+    # print("OPENAI_API_KEY:")
+    # print(os.getenv("OPENAI_API_KEY"))
     
     # Initialize decoder class (load model and tokenizer) ...
     decoder = Decoder(args)
@@ -24,6 +24,7 @@ def main():
     dataloader = setup_data_loader(args)
     print_now()
     
+    # few shot 어떻게 문장 선정하는지 S-BERT 활용하여 융합
     if args.method == "few_shot":
         demo = create_demo_text(args, cot_flag=False)
     elif args.method == "few_shot_cot":
@@ -37,7 +38,7 @@ def main():
         print('*************************')
         print("{}st data".format(i+1))
                 
-        # Prepare question template ...
+        # Prepare question template ... ()
         x, y = data
         x = "Q: " + x[0] + "\n" + "A:"
         y = y[0].strip()
@@ -68,7 +69,7 @@ def main():
             print(x + pred)
 
         # Clensing of predicted answer ...
-        pred = answer_cleansing(args, pred)
+        pred = answer_cleansing(args, pred) # Hypothesis 2 << 이런거 처리 어떻게 할지
         
         # Choose the most frequent answer from the list ...
         print("pred : {}".format(pred))
@@ -98,7 +99,7 @@ def parse_arguments():
     parser.add_argument("--random_seed", type=int, default=1, help="random seed")
     
     parser.add_argument(
-        "--dataset", type=str, default="aqua", choices=["aqua", "gsm8k", "commonsensqa", "addsub", "multiarith",  "strategyqa", "svamp", "singleeq", "bigbench_date", "object_tracking", "coin_flip", "last_letters"], help="dataset used for experiment"
+        "--dataset", type=str, default="commonsensqa", choices=["aqua", "gsm8k", "commonsensqa", "addsub", "multiarith",  "strategyqa", "svamp", "singleeq", "bigbench_date", "object_tracking", "coin_flip", "last_letters", "anli"], help="dataset used for experiment"
     )
     
     parser.add_argument("--minibatch_size", type=int, default=1, choices=[1], help="minibatch size should be 1 because GPT-3 API takes only 1 input for each request")
@@ -125,7 +126,7 @@ def parse_arguments():
         "--limit_dataset_size", type=int, default=10, help="whether to limit test dataset size. if 0, the dataset size is unlimited and we use all the samples in the dataset for testing."
     )
     parser.add_argument(
-        "--api_time_interval", type=float, default=1.0, help=""
+        "--api_time_interval", type=float, default=2.0, help=""
     )
     parser.add_argument(
         "--log_dir", type=str, default="./log/", help="log directory"
@@ -170,6 +171,9 @@ def parse_arguments():
     elif args.dataset == "last_letters":
         args.dataset_path = "./dataset/last_letters/last_letters.json"
         args.direct_answer_trigger = "\nTherefore, the answer is"
+    elif args.dataset == "anli":
+        args.dataset_path = "./dataset/aNLI/test.jsonl"
+        args.direct_answer_trigger = "\nTherefore, the answer is" ########## 수정 필요할수 있음 (second prompt)
     else:
         raise ValueError("dataset is not properly defined ...")
         
@@ -215,3 +219,11 @@ def parse_arguments():
 
 if __name__ == "__main__":
     main()
+
+"""
+메모
+Zero-shot : 왜 모든 것이 hyp2로 예측되는가
+Zero-shot-CoT with GPT3-xl : hyp2가 아니라 Hypothesis 2 이런식으로 나오는 경우 존재
+
+python main.py >> log.log 로 로그 쓰기 가능
+"""

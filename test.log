@@ -1,0 +1,123 @@
+*****************************
+Namespace(api_log_file_name=None, api_time_interval=2.0, cot_trigger="Let's think step by step.", cot_trigger_no=1, dataset='commonsensqa', dataset_path='./dataset/CommonsenseQA/dev_rand_split.jsonl', direct_answer_trigger='\nTherefore, among A through E, the answer is', direct_answer_trigger_for_fewshot='The answer is', direct_answer_trigger_for_zeroshot='Among A through E, the answer is', direct_answer_trigger_for_zeroshot_cot='\nTherefore, among A through E, the answer is', limit_dataset_size=10, log_dir='./log/', max_length_cot=128, max_length_direct=32, max_num_worker=3, method='zero_shot_cot', minibatch_size=1, model='gpt3', plausible_answer_trigger='Choose the most plausible answer from among choices A through E.', random_seed=1)
+*****************************
+OPENAI_API_KEY:
+None
+2023/03/14 16:48:21
+setup data loader ...
+worker_seed : 1
+dataloader_num_workers: 3
+dataset : commonsensqa
+data size : 1221
+average num of words for each sample : 27.75184275184275
+2023/03/14 16:48:21
+*************************
+1st data
+Q: What are candles good for eliminating? Answer Choices: (A) shelf (B) board (C) church (D) table (E) dark
+A: Let's think step by step. If we thought about the benefits of candles, we would know that they were good for eliminating waste, reducing pollution, and making a difference in the world. Table and dark colors are always best because they help to show off your personality and make a statement. 
+Therefore, among A through E, the answer is C.
+pred_before :  C.
+pred_after : C
+pred : C
+GT : E
+*************************
+*************************
+2st data
+Q: If there is a pond with trees around it, where it it likely located? Answer Choices: (A) ground (B) bathroom (C) forest (D) countryside (E) rural area
+A: Let's think step by step. If it is a pond, it's likely located in a ground area area. If it is a bathroom, it may be located in a rural area or even aoneliness. If it is a forest, it may be located in a forest or even a countryside area. 
+Therefore, among A through E, the answer is likely A.
+pred_before :  likely A.
+pred_after : A
+pred : A
+GT : C
+*************************
+*************************
+3st data
+Q: Reading newspaper one of many ways to practice your what? Answer Choices: (A) literacy (B) knowing how to read (C) money (D) buying (E) money bank
+A: Let's think step by step.
+
+1. By reading newspapers
+2. By listening to media
+3. By buying money
+4. By bank 
+Therefore, among A through E, the answer is C.
+pred_before :  C.
+pred_after : C
+pred : C
+GT : A
+*************************
+*************************
+4st data
+Q: What happens when to ice when it is in the sun? Answer Choices: (A) carved (B) melted (C) ice cream (D) antarctica (E) sculptured
+A: Let's think step by step. The ice that is in the sun melts at the surface. This means that when the ice is in the sun, it is melted and carved into various shapes and sizes. Antarctica is also a possible answer, but it is harder to think of a specific reason why that would be. 
+Therefore, among A through E, the answer is D.
+pred_before :  D.
+pred_after : D
+pred : D
+GT : B
+*************************
+*************************
+5st data
+Q: James loved to surf but he wasn't good at it. He would always do what? Answer Choices: (A) wipe out (B) enjoy yourself (C) start fighting (D) get wet (E) drown
+A: Let's think step by step. James loved to surf but he wasn't good at it. He would always do what? Let's think step by step. 
+Therefore, among A through E, the answer is choices B and C.
+pred_before :  choices B and C.
+pred_after : B
+pred : B
+GT : A
+*************************
+*************************
+6st data
+Q: He was trying to procreate with many individuals, this led to a what? Answer Choices: (A) moaning (B) die (C) kiss (D) std (E) sanity
+A: Let's think step by step. If he was trying to procreate, then he would have wanted to make sure that each individual he was trying to produce with was actually a goody two-shoes and not some late-20s-ageable type of person. Alternatively, he could have chosen to die or kiss if he thought that that was the most logical course of action. 
+Therefore, among A through E, the answer is C.
+pred_before :  C.
+pred_after : C
+pred : C
+GT : D
+*************************
+*************************
+7st data
+Q: Jan tested the current, and noticed that it was high.  He thought that the wires might have too much what? Answer Choices: (A) later (B) updated (C) still (D) resistance (E) now
+A: Let's think step by step.
+
+B) updated (C) still (D) resistance (E) now
+
+C) still 
+Therefore, among A through E, the answer is C.
+pred_before :  C.
+pred_after : C
+pred : C
+GT : D
+*************************
+*************************
+8st data
+Q: What is the thing that is agitated in your head when kissing? Answer Choices: (A) sexual stimulation (B) herpes (C) headache (D) catch cold (E) happiness
+A: Let's think step by step. First, it could be that your head is buzzing with interest in regards to the person you're kissing. This is because her body is being stimulated in some way. Additionally, if you were to experience herpes, it would likely be from the physical pain that you are experiencing. Lastly, if you were to have a headache, it may be from activities like sexual activity or illness. 
+Therefore, among A through E, the answer is C.
+pred_before :  C.
+pred_after : C
+pred : C
+GT : E
+*************************
+*************************
+9st data
+Q: Human beings learn about current events from what print item? Answer Choices: (A) question authority (B) melt (C) read newspapers (D) act (E) dictionary
+A: Let's think step by step. If we want to learn about the current events, we need to be aware of what is happening in the world. You can also find information through online sources, such as the news, newspapers, and a variety of books, movies, and videos. 
+Therefore, among A through E, the answer is question authority.
+pred_before :  question authority.
+pred_after : 
+pred : 
+GT : C
+*************************
+*************************
+10st data
+Q: The teens were trying to hide that they get drink, but when they walked in the door their what gave it away? Answer Choices: (A) health (B) fall down (C) stagger (D) get arrested (E) vomit
+A: Let's think step by step. (A) health is the first sign that someone is drunk and should not be trusted (B) fall down is the first sign that someone is drunk and should not be trusted (C) stagger is the first sign that someone is drunk and should not be trusted (D) get arrested is the first sign that someone is drunk and should not be trusted (E) vomit is the first sign that someone is drunk and should not be trusted 
+Therefore, among A through E, the answer is choice B.
+pred_before :  choice B.
+pred_after : B
+pred : B
+GT : C
+*************************
+accuracy : 0.0

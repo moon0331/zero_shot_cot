@@ -58,8 +58,9 @@ def decoder_for_gpt3(args, input, max_length, i, k):
     time.sleep(args.api_time_interval)
     
     # https://beta.openai.com/account/api-keys
-    openai.api_key = os.getenv("OPENAI_API_KEY")
+    openai.api_key = os.getenv("OPENAI_API_KEY") # my key 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
     #print(openai.api_key)
+    openai.api_key = None
     
     # Specify engine ...
     # Instruct GPT3
@@ -209,6 +210,42 @@ def data_reader(args):
           a = line["answer"]
           questions.append(q)
           answers.append(a)
+
+    elif args.dataset == 'anli':
+      with open(args.dataset_path) as f:
+        data = f.readlines()
+        generations = [json.loads(line) for line in data]
+
+      with open(args.dataset_path.replace('.jsonl', '-labels.lst')) as f:
+        labels = [line.strip() for line in f.readlines()]
+
+      assert(len(generations) == len(labels))
+
+      # 다음 형식에 맞게 questions과 answers 만들기
+      '''
+      obs1: The sentence about observation 1.
+      obs2: The sentence about observation 2.
+      hyp1: The hypothesis sentence, between obs1 and obs2.
+      hyp2: The hypothesis sentence, between obs1 and obs2.
+      Q: Which is more plausible, hyp1 or hyp2, as the sentence that will come between obs1 and obs2?
+      # q = 'obs1: {}\nobs2: {}\nhyp1: {}\nhyp2: {}\nQ: {}'.format(g['obs1'], g['obs2'], g['hyp1'], g['hyp2'], question)
+      '''
+
+      '''
+      Which is more plausible, hyp1 or hyp2, as the sentence that will come between obs1 and obs2?
+      obs1: The sentence about observation 1.
+      obs2: The sentence about observation 2.
+      hyp1: The hypothesis sentence, between obs1 and obs2.
+      hyp2: The hypothesis sentence, between obs1 and obs2.
+      '''
+
+      for i, (g, a) in enumerate(zip(generations, labels)):
+        question = 'Which is more plausible, hyp1 or hyp2, as the sentence that will come between obs1 and obs2?'
+        # q = 'obs1: {}\nobs2: {}\nhyp1: {}\nhyp2: {}\nQ: {}'.format(g['obs1'], g['obs2'], g['hyp1'], g['hyp2'], question)
+        q = '{}\nobs1: {}\nobs2: {}\nhyp1: {}\nhyp2: {}'.format(question, g['obs1'], g['obs2'], g['hyp1'], g['hyp2'])
+        a = 'hyp{}'.format(a)
+        questions.append(q)
+        answers.append(a)
         
     else:
         raise ValueError("dataset is not properly defined ...")
@@ -296,6 +333,8 @@ def answer_cleansing(args, pred):
     elif args.dataset == "last_letters":
         pred = re.sub("\"|\'|\n|\.|\s","", pred)
         pred = [pred]
+    elif args.dataset == 'anli':
+        pred = re.findall(r'hyp1|hyp2', pred.lower())
     else:
         raise ValueError("dataset is not properly defined ...")
 
