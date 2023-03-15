@@ -99,7 +99,10 @@ def parse_arguments():
     parser.add_argument("--random_seed", type=int, default=1, help="random seed")
     
     parser.add_argument(
-        "--dataset", type=str, default="commonsensqa", choices=["aqua", "gsm8k", "commonsensqa", "addsub", "multiarith",  "strategyqa", "svamp", "singleeq", "bigbench_date", "object_tracking", "coin_flip", "last_letters", "anli"], help="dataset used for experiment"
+        "--dataset", type=str, default="commonsensqa", 
+            choices=["aqua", "gsm8k", "commonsensqa", "addsub", "multiarith",  "strategyqa", "svamp", 
+                     "singleeq", "bigbench_date", "object_tracking", "coin_flip", "last_letters", "anli", "anli_small"], 
+            help="dataset used for experiment"
     )
     
     parser.add_argument("--minibatch_size", type=int, default=1, choices=[1], help="minibatch size should be 1 because GPT-3 API takes only 1 input for each request")
@@ -107,7 +110,7 @@ def parse_arguments():
     parser.add_argument("--max_num_worker", type=int, default=3, help="maximum number of workers for dataloader")
     
     parser.add_argument(
-        "--model", type=str, default="gpt3", choices=["gpt3", "gpt3-medium", "gpt3-large", "gpt3-xl"], help="model used for decoding. Note that 'gpt3' are the smallest models."
+        "--model", type=str, default="gpt3", choices=["gpt3", "gpt3-medium", "gpt3-large", "gpt3-xl", "gpt3.5"], help="model used for decoding. Note that 'gpt3' are the smallest models."
     )
     
     parser.add_argument(
@@ -117,8 +120,8 @@ def parse_arguments():
         "--cot_trigger_no", type=int, default=1, help="A trigger sentence that elicits a model to execute chain of thought"
     )
     parser.add_argument(
-        "--max_length_cot", type=int, default=128, help="maximum length of output tokens by model for reasoning extraction"
-    )
+        "--max_length_cot", type=int, default=256, help="maximum length of output tokens by model for reasoning extraction"
+    ) # default: 128
     parser.add_argument(
         "--max_length_direct", type=int, default=32, help="maximum length of output tokens by model for answer extraction"
     )
@@ -173,6 +176,9 @@ def parse_arguments():
         args.direct_answer_trigger = "\nTherefore, the answer is"
     elif args.dataset == "anli":
         args.dataset_path = "./dataset/aNLI/test.jsonl"
+        args.direct_answer_trigger = "\nTherefore, the answer is" ########## 수정 필요할수 있음 (second prompt)
+    elif args.dataset == "anli_small":
+        args.dataset_path = "./dataset/aNLI/test_sample.jsonl"
         args.direct_answer_trigger = "\nTherefore, the answer is" ########## 수정 필요할수 있음 (second prompt)
     else:
         raise ValueError("dataset is not properly defined ...")

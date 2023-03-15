@@ -58,9 +58,9 @@ def decoder_for_gpt3(args, input, max_length, i, k):
     time.sleep(args.api_time_interval)
     
     # https://beta.openai.com/account/api-keys
-    openai.api_key = os.getenv("OPENAI_API_KEY") # my key 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
+    openai.api_key = os.getenv("OPENAI_API_KEY")
     #print(openai.api_key)
-    openai.api_key = None
+    openai.api_key = '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'
     
     # Specify engine ...
     # Instruct GPT3
@@ -72,18 +72,34 @@ def decoder_for_gpt3(args, input, max_length, i, k):
         engine = "text-curie-001"
     elif args.model == "gpt3-xl":
         engine = "text-davinci-002"
+    elif args.model == "gpt3.5":
+        engine = "gpt-3.5-turbo"
     else:
         raise ValueError("model is not properly defined ...")
         
-    response = openai.Completion.create(
-      engine=engine,
-      prompt=input,
-      max_tokens=max_length,
-      temperature=0,
-      stop=None
-    )
+    if engine == "gpt-3.5-turbo":
+        response = openai.ChatCompletion.create(
+        model=engine,
+        messages=[
+            {"role": "user", "content": input},
+            ],
+        max_tokens=max_length,
+        temperature=0,
+        stop=None
+        )
+
+        return response["choices"][0]["message"]["content"]
     
-    return response["choices"][0]["text"]
+    else:
+        response = openai.Completion.create(
+        engine=engine,
+        prompt=input,
+        max_tokens=max_length,
+        temperature=0,
+        stop=None
+        )
+    
+        return response["choices"][0]["text"]
 
 class Decoder():
     def __init__(self, args):
@@ -100,152 +116,172 @@ def data_reader(args):
     decoder = json.JSONDecoder()
 
     if args.dataset == "aqua":
-      with open(args.dataset_path) as f:
-        lines = f.readlines()
-        for line in lines:
-          json_res = decoder.raw_decode(line)[0]
-          choice = "(" + "(".join(json_res["options"])
-          choice = choice.replace("(", " (").replace(")", ") ")
-          choice = "Answer Choices:" + choice
-          questions.append(json_res["question"].strip() + " " + choice)
-          answers.append(json_res["correct"])
+        with open(args.dataset_path) as f:
+            lines = f.readlines()
+            for line in lines:
+                json_res = decoder.raw_decode(line)[0]
+                choice = "(" + "(".join(json_res["options"])
+                choice = choice.replace("(", " (").replace(")", ") ")
+                choice = "Answer Choices:" + choice
+                questions.append(json_res["question"].strip() + " " + choice)
+                answers.append(json_res["correct"])
   
     elif args.dataset == "gsm8k":
-      with open(args.dataset_path) as f:
-        lines = f.readlines()
-        for line in lines:
-          json_res = decoder.raw_decode(line)[0]
-          questions.append(json_res["question"].strip())
-          answers.append(json_res["answer"].split("#### ")[-1])
-  
+        with open(args.dataset_path) as f:
+            lines = f.readlines()
+            for line in lines:
+                json_res = decoder.raw_decode(line)[0]
+                questions.append(json_res["question"].strip())
+                answers.append(json_res["answer"].split("#### ")[-1])
+    
     elif args.dataset == "commonsensqa":
-      with open(args.dataset_path) as f:
-        lines = f.readlines()
-        for line in lines:
-          json_res = decoder.raw_decode(line)[0]
-          choice = "Answer Choices:"
-          for c in json_res["question"]["choices"]:
-              choice += " ("
-              choice += c["label"]
-              choice += ") "
-              choice += c["text"]
-          questions.append(json_res["question"]["stem"].strip() + " " + choice)
-          answers.append(json_res["answerKey"])
+        with open(args.dataset_path) as f:
+            lines = f.readlines()
+            for line in lines:
+                json_res = decoder.raw_decode(line)[0]
+                choice = "Answer Choices:"
+                for c in json_res["question"]["choices"]:
+                    choice += " ("
+                    choice += c["label"]
+                    choice += ") "
+                    choice += c["text"]
+                questions.append(json_res["question"]["stem"].strip() + " " + choice)
+                answers.append(json_res["answerKey"])
 
     elif args.dataset in ("addsub", "multiarith", "singleeq"):
-      with open(args.dataset_path) as f:
-        json_data = json.load(f)
-        for line in json_data:
-          q = line["sQuestion"].strip()
-          a = str(line["lSolutions"][0])
-          if a[-2:] == ".0":
-              a = a[:-2]
-          questions.append(q)
-          answers.append(a)
+        with open(args.dataset_path) as f:
+            json_data = json.load(f)
+            for line in json_data:
+                q = line["sQuestion"].strip()
+                a = str(line["lSolutions"][0])
+                if a[-2:] == ".0":
+                    a = a[:-2]
+                questions.append(q)
+                answers.append(a)
         
     elif args.dataset == "strategyqa":
-      with open(args.dataset_path) as f:
-        json_data = json.load(f)["examples"]
-        for line in json_data:
-          q = line["input"].strip()
-          a = int(line["target_scores"]["Yes"])
-          if a == 1:
-              a = "yes"
-          else:
-              a = "no"
-          questions.append(q)
-          answers.append(a)
+        with open(args.dataset_path) as f:
+            json_data = json.load(f)["examples"]
+            for line in json_data:
+                q = line["input"].strip()
+                a = int(line["target_scores"]["Yes"])
+                if a == 1:
+                    a = "yes"
+                else:
+                    a = "no"
+                questions.append(q)
+                answers.append(a)
         
     elif args.dataset == "svamp":
-      with open(args.dataset_path) as f:
-        json_data = json.load(f)
-        for line in json_data:
-            q = line["Body"].strip() + " " + line["Question"].strip()
-            a = str(line["Answer"])
-            if a[-2:] == ".0":
-                a = a[:-2]
-            questions.append(q)
-            answers.append(a)
+        with open(args.dataset_path) as f:
+            json_data = json.load(f)
+            for line in json_data:
+                q = line["Body"].strip() + " " + line["Question"].strip()
+                a = str(line["Answer"])
+                if a[-2:] == ".0":
+                    a = a[:-2]
+                questions.append(q)
+                answers.append(a)
             
     elif args.dataset in ("bigbench_date", "object_tracking"):
-      with open(args.dataset_path) as f:
-        json_data = json.load(f)
-        json_data = json_data["examples"]
-        if args.dataset == "bigbench_date":
-            choice_index = ['A','B','C','D','E','F']
-        elif args.dataset in ("object_tracking"):
-            choice_index = ['A','B','C']
-        else:
-            raise ValueError("dataset is not properly defined ...")
-        for line in json_data:
-          q = line["input"].strip()
-          if args.dataset == "bigbench_date":
-              choice = "Answer Choices:"
-              # Randomly shuffle the answer choice dictionary because the original answer is always A ...
-              choice_dic = shuffleDict(line["target_scores"])
-          elif args.dataset == "object_tracking":
-              choice = "\nWhich choice is true ? Answer Choices:"
-              choice_dic = line["target_scores"]
-          else:
-              raise ValueError("dataset is not properly defined ...")
-          for i, key_value in enumerate(choice_dic.items()):
-              key, value = key_value
-              choice += " ("
-              choice += choice_index[i]
-              choice += ") "
-              choice += key
-              if value == 1:
-                  a = choice_index[i]
-                  #a = key
-          q = q + " " + choice
-          questions.append(q)
-          answers.append(a)            
+        with open(args.dataset_path) as f:
+            json_data = json.load(f)
+            json_data = json_data["examples"]
+            if args.dataset == "bigbench_date":
+                choice_index = ['A','B','C','D','E','F']
+            elif args.dataset in ("object_tracking"):
+                choice_index = ['A','B','C']
+            else:
+                raise ValueError("dataset is not properly defined ...")
+            for line in json_data:
+                q = line["input"].strip()
+                if args.dataset == "bigbench_date":
+                    choice = "Answer Choices:"
+                    # Randomly shuffle the answer choice dictionary because the original answer is always A ...
+                    choice_dic = shuffleDict(line["target_scores"])
+                elif args.dataset == "object_tracking":
+                    choice = "\nWhich choice is true ? Answer Choices:"
+                    choice_dic = line["target_scores"]
+                else:
+                    raise ValueError("dataset is not properly defined ...")
+                for i, key_value in enumerate(choice_dic.items()):
+                    key, value = key_value
+                    choice += " ("
+                    choice += choice_index[i]
+                    choice += ") "
+                    choice += key
+                    if value == 1:
+                        a = choice_index[i]
+                        #a = key
+                q = q + " " + choice
+                questions.append(q)
+                answers.append(a)            
           
     elif args.dataset in ("coin_flip", "last_letters"):
-      with open(args.dataset_path) as f:
-        json_data = json.load(f)
-        json_data = json_data["examples"]
-        for line in json_data:
-          q = line["question"]
-          a = line["answer"]
-          questions.append(q)
-          answers.append(a)
+        with open(args.dataset_path) as f:
+            json_data = json.load(f)
+            json_data = json_data["examples"]
+            for line in json_data:
+                q = line["question"]
+                a = line["answer"]
+                questions.append(q)
+                answers.append(a)
 
-    elif args.dataset == 'anli':
-      with open(args.dataset_path) as f:
-        data = f.readlines()
-        generations = [json.loads(line) for line in data]
+    elif args.dataset.startswith('anli'):
+        with open(args.dataset_path) as f:
+            data = f.readlines()
+            generations = [json.loads(line) for line in data]
 
-      with open(args.dataset_path.replace('.jsonl', '-labels.lst')) as f:
-        labels = [line.strip() for line in f.readlines()]
+        with open(args.dataset_path.replace('.jsonl', '-labels.lst')) as f:
+            labels = [line.strip() for line in f.readlines()]
 
-      assert(len(generations) == len(labels))
+        assert(len(generations) == len(labels))
 
-      # 다음 형식에 맞게 questions과 answers 만들기
-      '''
-      obs1: The sentence about observation 1.
-      obs2: The sentence about observation 2.
-      hyp1: The hypothesis sentence, between obs1 and obs2.
-      hyp2: The hypothesis sentence, between obs1 and obs2.
-      Q: Which is more plausible, hyp1 or hyp2, as the sentence that will come between obs1 and obs2?
-      # q = 'obs1: {}\nobs2: {}\nhyp1: {}\nhyp2: {}\nQ: {}'.format(g['obs1'], g['obs2'], g['hyp1'], g['hyp2'], question)
-      '''
+        # get random indices from len(generations)
+        if args.dataset == 'anli_small':
+            n_sample = 64
+            indices = np.random.choice(len(generations), n_sample, replace=False)
 
-      '''
-      Which is more plausible, hyp1 or hyp2, as the sentence that will come between obs1 and obs2?
-      obs1: The sentence about observation 1.
-      obs2: The sentence about observation 2.
-      hyp1: The hypothesis sentence, between obs1 and obs2.
-      hyp2: The hypothesis sentence, between obs1 and obs2.
-      '''
+            # get questions and answers from given indices
+            temp_g = []
+            temp_l = []
+            for idx in indices:
+                temp_g.append(generations[idx])
+                temp_l.append(labels[idx])
+            
+            generations = temp_g
+            labels = temp_l
 
-      for i, (g, a) in enumerate(zip(generations, labels)):
-        question = 'Which is more plausible, hyp1 or hyp2, as the sentence that will come between obs1 and obs2?'
+        # 다음 형식에 맞게 questions과 answers 만들기
+        '''
+        obs1: The sentence about observation 1.
+        obs2: The sentence about observation 2.
+        hyp1: The hypothesis sentence, between obs1 and obs2.
+        hyp2: The hypothesis sentence, between obs1 and obs2.
+        Q: Which is more plausible, hyp1 or hyp2, as the sentence that will come between obs1 and obs2?
         # q = 'obs1: {}\nobs2: {}\nhyp1: {}\nhyp2: {}\nQ: {}'.format(g['obs1'], g['obs2'], g['hyp1'], g['hyp2'], question)
-        q = '{}\nobs1: {}\nobs2: {}\nhyp1: {}\nhyp2: {}'.format(question, g['obs1'], g['obs2'], g['hyp1'], g['hyp2'])
-        a = 'hyp{}'.format(a)
-        questions.append(q)
-        answers.append(a)
+        '''
+
+        '''
+        Which is more plausible, hyp1 or hyp2, as the sentence that will come between obs1 and obs2?
+        obs1: The sentence about observation 1.
+        obs2: The sentence about observation 2.
+        hyp1: The hypothesis sentence, between obs1 and obs2.
+        hyp2: The hypothesis sentence, between obs1 and obs2.
+
+
+        obs1, obs2 -> R, S
+        hyp1, hyp2 -> X, Y
+        '''
+
+        for i, (g, a) in enumerate(zip(generations, labels)):
+            question = 'Which is more plausible, X or Y, as the sentence that will come between R and S?'
+            # q = 'R: {}\nS: {}\nX: {}\nY: {}\nQ: {}'.format(g['obs1'], g['obs2'], g['hyp1'], g['hyp2'], question)
+            q = '{}\nR: {}\nS: {}\nX: {}\nY: {}'.format(question, g['obs1'], g['obs2'], g['hyp1'], g['hyp2'])
+            # a = 'hyp{}'.format(a)
+            a = 'XY'[int(a)-1]
+            questions.append(q)
+            answers.append(a)
         
     else:
         raise ValueError("dataset is not properly defined ...")
@@ -333,8 +369,9 @@ def answer_cleansing(args, pred):
     elif args.dataset == "last_letters":
         pred = re.sub("\"|\'|\n|\.|\s","", pred)
         pred = [pred]
-    elif args.dataset == 'anli':
-        pred = re.findall(r'hyp1|hyp2', pred.lower())
+    elif args.dataset.startswith('anli'):
+        # pred = re.findall(r'hyp1|hyp2', pred.lower())
+        pred = re.findall(r'X|Y', pred)
     else:
         raise ValueError("dataset is not properly defined ...")
 
@@ -401,7 +438,66 @@ def create_demo_text(args, cot_flag):
         x.append("Olivia has $23. She bought five bagels for $3 each. How much money does she have left?")
         z.append("Olivia had 23 dollars. 5 bagels for 3 dollars each will be 5 x 3 = 15 dollars. So she has 23 - 15 dollars left. 23 - 15 is 8.")
         y.append("8")
-    
+
+    elif args.dataset.startswith("anli"):
+        # 예시 뽑아서 넣고 제대로 되는지 확인하기
+
+        # 2 8 10 11 16 17 21 22 29 35
+
+        x.append("\n".join([
+            "Which is more plausible, X or Y, as the sentence that will come between R and S?",
+            "R: Kelly and her friends decided to go to Indian for lunch.",
+            "S: They vowed never to return.",
+            "X: Kelly and her friends got cancer diagnoses on sunday.",
+            "Y: They were very hungry and their meals took very long to be served."
+        ]))
+        z.append("The first sentence, R, is about Kelly and her friends going to Indian for lunch. The second sentence, S, is about them never returning. So, the third sentence, X or Y, would have to be about their experience at the Indian restaurant. Based on that, Y is more plausible because it is about their experience at the Indian restaurant and how long it took for their meals to be served.")
+        y.append("Y")
+
+        x.append("\n".join([
+            "Which is more plausible, X or Y, as the sentence that will come between R and S?",   
+            "R: Jane was going to her job.",
+            "S: Overall, she ended up being late to work.",
+            "X: Jane woke up late and was stuck in traffic.",
+            "Y: On the way home she stepped in dog poop." 
+        ]))
+        z.append("First, Jane was going to her job. This means that she was heading to work, most likely in the morning. Then, she ended up being late to work. This could be for a number of reasons, but we'll assume that it's because something happened on her way to work. The most plausible sentence to come between R and S would be X: Jane woke up late and was stuck in traffic. This is a common occurrence that would make someone late for work. Y: On the way home she stepped in dog poop. is less plausible because it would happen on the way home, not on the way to work.")
+        y.append("X")
+
+        x.append("\n".join([
+            "Which is more plausible, X or Y, as the sentence that will come between R and S?",
+            "R: Steve was very sad.",
+            "S: Steve wondered if they could ever get back together.",
+            "X: Steve's wife just moved out of the house.",
+            "Y: Steve's wife just moved into the house."
+        ]))
+        z.append("If Steve's wife just moved out of the house, he would be sad. If Steve's wife just moved into the house, he would be happy. So, X is more plausible.")
+        y.append("X")
+
+        x.append("\n".join([
+            'Q: Which is more plausible, X or Y, as the sentence that will come between R and S?', 
+            'R: Jim was on the the United States Olympic track team.', 
+            'S: Jim ended up winning a gold medal!', 
+            "X: Jim trained for years to become the team's best athlete.", 
+            'Y: Jim ran for the French team in the Olympics.'
+        ]))
+        z.append("The first sentence is about Jim being on the United States Olympic track team. The second sentence is about Jim winning a gold medal. So, it is more plausible that the sentence in between would be about Jim training to become the team's best athlete.")
+        y.append("X")
+
+        x.append("\n".join([
+            'Q: Which is more plausible, X or Y, as the sentence that will come between R and S?',
+            'R: It is usually calm and warm in the morning, in Florida.',
+            'S: So I went outside to play.',
+            "X: It's best to go outside in pretty weather.",
+            'Y: I wanted to sleep in on this morning.'
+        ]))
+        z.append("The speaker wants to do something (play), and it's morning. The weather is good, so X is more plausible.")
+        y.append("X")
+
+        x.append("\n".join([
+
+        ]))
+
     else:
         raise ValueError("dataset is not properly defined ...")
         
