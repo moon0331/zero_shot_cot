@@ -1,0 +1,282 @@
+*****************************
+Namespace(api_log_file_name=None, api_time_interval=1.2, cot_trigger="Let's think step by step.", cot_trigger_no=1, dataset='anli_sample', dataset_path='./dataset/aNLI/fewshot.jsonl', direct_answer_trigger='\nTherefore, the answer is', direct_answer_trigger_for_fewshot='The answer is', direct_answer_trigger_for_zeroshot='The answer is', direct_answer_trigger_for_zeroshot_cot='\nTherefore, the answer is', limit_dataset_size=0, log_dir='./log/', max_length_cot=256, max_length_direct=32, max_num_worker=3, method='zero_shot_cot', minibatch_size=1, model='gpt3.5', random_seed=1, start_idx=1)
+*****************************
+2023/03/17 13:23:10
+setup data loader ...
+worker_seed : 1
+dataloader_num_workers: 3
+dataset : anli_sample
+data size : 13
+average num of words for each sample : 52.76923076923077
+2023/03/17 13:23:10
+*************************
+1st data
+Q: Which is more plausible, X or Y, as the sentence that will come between R and S?
+R: Tina has two dogs.
+S: They became best friends and enjoy playing in the backyard together.
+X: Tina had just gotten a puppy and was worried about how much work it would be.
+Y: Tina lets the dogs run around in her backyard.
+A: Let's think step by step.
+
+First, we know that Tina has two dogs. Then, the sentence that follows talks about how they became best friends and enjoy playing in the backyard together. 
+
+Option X talks about Tina getting a new puppy and being worried about the work it would entail. While this is a plausible sentence, it doesn't necessarily follow the flow of the previous sentence. 
+
+Option Y, on the other hand, talks about Tina letting the dogs run around in her backyard. This sentence seems more plausible as it follows the idea of the dogs playing in the backyard together. 
+
+Therefore, option Y is more plausible as the sentence that will come between R and S. 
+Therefore, the answer isY: Tina lets the dogs run around in her backyard.
+pred_before : Y: Tina lets the dogs run around in her backyard.
+pred_after : Y
+pred : Y
+GT : Y
+*************************
+*************************
+2st data
+Q: Which is more plausible, X or Y, as the sentence that will come between R and S?
+R: Al couldn't hear anything out of his new headphones.
+S: They told Al that the headphone jack was turned off.
+X: Al called customer support.
+Y: The employee's complained to Al.
+A: Let's think step by step.
+
+First, we know that Al couldn't hear anything out of his new headphones. Then, we learn that they told Al that the headphone jack was turned off. This suggests that Al was able to resolve the issue without needing to contact anyone else. Therefore, it is more plausible that X is the sentence that will come between R and S, indicating that Al called customer support to resolve the issue with his headphones. Y, on the other hand, does not fit with the information given and is less plausible. 
+Therefore, the answer isX: Al called customer support.
+pred_before : X: Al called customer support.
+pred_after : X
+pred : X
+GT : X
+*************************
+*************************
+3st data
+Q: Which is more plausible, X or Y, as the sentence that will come between R and S?
+R: A man made a wishing well next to his mailbox.
+S: He paid for the entire meal in change.
+X: The change filled up with wishing wells.
+Y: Every person who walked by tossed in a coin.
+A: Let's think step by step.
+
+First, we need to consider the context of the sentence. The sentence before R talks about a man making a wishing well next to his mailbox. The sentence after S talks about the man paying for a meal in change. 
+
+Option X, "The change filled up with wishing wells," does not make sense in this context. It is unlikely that the change would turn into wishing wells. 
+
+Option Y, "Every person who walked by tossed in a coin," is more plausible. It fits with the idea of a wishing well and people making wishes by tossing coins into it. 
+
+Therefore, option Y is more plausible as the sentence that will come between R and S. 
+Therefore, the answer isY: Every person who walked by tossed in a coin.
+pred_before : Y: Every person who walked by tossed in a coin.
+pred_after : Y
+pred : Y
+GT : Y
+*************************
+*************************
+4st data
+Q: Which is more plausible, X or Y, as the sentence that will come between R and S?
+R: Kathy was responsible for buying the groceries.
+S: Now Kathy never goes shopping without planning and a list.
+X: She always used to forget things.
+Y: Kathy spent a lot of money, and still does.
+A: Let's think step by step.
+
+First, we know that Kathy is now a planner and makes a list before going shopping. This suggests that she has learned from past mistakes and is now more organized. 
+
+Option X, "She always used to forget things," seems less plausible because it contradicts the idea that Kathy is now a planner. If she always forgot things, it would be unlikely that she would now be so organized. 
+
+Option Y, "Kathy spent a lot of money, and still does," is more plausible because it doesn't contradict the idea that Kathy is now a planner. It's possible that even though she plans and makes a list, she still spends a lot of money on groceries. 
+
+Therefore, option Y is more plausible as the sentence that will come between R and S. 
+Therefore, the answer isY: Kathy spent a lot of money, and still does.
+pred_before : Y: Kathy spent a lot of money, and still does.
+pred_after : Y
+pred : Y
+GT : X
+*************************
+*************************
+5st data
+Q: Which is more plausible, X or Y, as the sentence that will come between R and S?
+R: Larry was running late for work.
+S: He had gotten the wrong one in his hurry.
+X: He picked out a tie as he was running out of the door.
+Y: He make sure he get the correct tie as he was running out of the door.
+A: Let's think step by step.
+
+First, we know that Larry was running late for work. This suggests that he was in a hurry and didn't have much time to spare. 
+
+Option X, "He picked out a tie as he was running out of the door," seems less plausible because it implies that Larry had time to stop and choose a tie before leaving. 
+
+Option Y, "He made sure he got the correct tie as he was running out of the door," seems more plausible because it suggests that Larry was in a rush but still took the time to make sure he had the right tie. 
+
+Therefore, option Y is more plausible as the sentence that will come between R and S. 
+Therefore, the answer isY: He made sure he got the correct tie as he was running out of the door.
+pred_before : Y: He made sure he got the correct tie as he was running out of the door.
+pred_after : Y
+pred : Y
+GT : X
+*************************
+*************************
+6st data
+Q: Which is more plausible, X or Y, as the sentence that will come between R and S?
+R: Tim needed a fruit to eat.
+S: Finally, he found some fresh grapes to eat.
+X: He went to the near by super market.
+Y: Tim looked for a long time in the messy fridge.
+A: Let's think step by step.
+
+First, we know that Tim needed a fruit to eat. Then, we see that he found some fresh grapes to eat. So, the sentence that will come between R and S should explain how Tim found the grapes. 
+
+Option X suggests that he went to a nearby supermarket, which is a plausible explanation. However, option Y suggests that he looked for a long time in a messy fridge, which doesn't seem to fit with the fact that he found fresh grapes. 
+
+Therefore, option X is more plausible as the sentence that will come between R and S. 
+Therefore, the answer isX: He went to the nearby supermarket.
+pred_before : X: He went to the nearby supermarket.
+pred_after : X
+pred : X
+GT : Y
+*************************
+*************************
+7st data
+Q: Which is more plausible, X or Y, as the sentence that will come between R and S?
+R: Joey was a second grader that like to color in coloring books.
+S: Joey felt proud of himself.
+X: Joey mis-colored the picture.
+Y: Joey colored in 20 books.
+A: Let's think step by step.
+
+First, we know that Joey was a second grader who liked to color in coloring books. This sets the stage for a story about Joey and his coloring activities. 
+
+Next, we have to consider which sentence is more plausible as the one that comes between R and S. 
+
+Sentence X, "Joey mis-colored the picture," is a possibility, but it doesn't necessarily lead to Joey feeling proud of himself. In fact, it could have the opposite effect and make him feel disappointed or frustrated. 
+
+Sentence Y, "Joey colored in 20 books," is also a possibility, but it doesn't necessarily relate to Joey feeling proud of himself either. It's just a statement of fact about how many books he colored in. 
+
+Given these options, it seems more plausible that the sentence between R and S would be X, "Joey mis-colored the picture." This sets up a potential conflict or challenge for Joey to overcome, which could lead to him feeling proud of himself if he is able to fix the mistake and create a beautiful picture. 
+Therefore, the answer isX: Joey mis-colored the picture.
+pred_before : X: Joey mis-colored the picture.
+pred_after : X
+pred : X
+GT : Y
+*************************
+*************************
+8st data
+Q: Which is more plausible, X or Y, as the sentence that will come between R and S?
+R: Andrea's dad asked her to get firewood.
+S: Then, she brought them inside.
+X: Andrea picked up as much wood as she could.
+Y: Andrea went and found fireflies.
+A: Let's think step by step.
+
+First, Andrea's dad asked her to get firewood. This means that Andrea's task was to collect firewood. Therefore, option X, "Andrea picked up as much wood as she could," is more plausible as the sentence that will come between R and S. Option Y, "Andrea went and found fireflies," is not related to the task given to Andrea and seems out of context. 
+Therefore, the answer isX: Andrea picked up as much wood as she could.
+pred_before : X: Andrea picked up as much wood as she could.
+pred_after : X
+pred : X
+GT : X
+*************************
+*************************
+9st data
+Q: Which is more plausible, X or Y, as the sentence that will come between R and S?
+R: I wanted Italian food.
+S: Alas, I ruined the cream base so the dish tasted terrible.
+X: She decided to make alfredo sauce.
+Y: I tried a new recipe and followed the steps closely.
+A: Let's think step by step.
+
+First, R states that the speaker wanted Italian food. Then, S explains that the dish tasted terrible because the cream base was ruined. 
+
+Based on this context, it is more plausible that Y is the sentence that will come between R and S. This is because Y suggests that the speaker tried a new recipe and followed the steps closely, which could have led to the mistake of ruining the cream base. 
+
+On the other hand, X suggests that someone else (presumably a female) decided to make alfredo sauce, which does not necessarily explain why the dish tasted terrible. Therefore, Y is a more plausible option. 
+Therefore, the answer isY: I tried a new recipe and followed the steps closely.
+pred_before : Y: I tried a new recipe and followed the steps closely.
+pred_after : Y
+pred : Y
+GT : X
+*************************
+*************************
+10st data
+Q: Which is more plausible, X or Y, as the sentence that will come between R and S?
+R: Sam had really bad social anxiety.
+S: Sam's social anxiety decreased after exposing herself to more people.
+X: Sam had to go out and meet people to get rid of it.
+Y: Sam made an effort at trying to be alone more often.
+A: Let's think step by step.
+
+First, we know that Sam had really bad social anxiety. Then, we learn that her social anxiety decreased after exposing herself to more people. 
+
+Based on this information, it is more plausible that X is the sentence that will come between R and S. This is because the sentence suggests that Sam actively took steps to overcome her social anxiety by going out and meeting people. This aligns with the idea that exposure therapy can be an effective treatment for social anxiety. 
+
+On the other hand, Y suggests that Sam made an effort to be alone more often, which does not seem to be a logical step towards reducing social anxiety. Therefore, X is the more plausible option. 
+Therefore, the answer isX: Sam had to go out and meet people to get rid of it.
+pred_before : X: Sam had to go out and meet people to get rid of it.
+pred_after : X
+pred : X
+GT : X
+*************************
+*************************
+11st data
+Q: Which is more plausible, X or Y, as the sentence that will come between R and S?
+R: There was a mechanic who didn't pay attention.
+S: The customer was angry he didn't pay attention to details.
+X: He messed up a car by not giving it the care it needed.
+Y: The cook accidentally messed up a paint job.
+A: Let's think step by step.
+
+First, we know that the sentence between R and S is related to a mechanic who didn't pay attention. 
+
+Option X is more plausible because it directly relates to the mechanic and his lack of attention to detail. It also fits with the context of the sentence, as it mentions a car being messed up. 
+
+Option Y, on the other hand, seems unrelated and out of place. It mentions a cook and a paint job, which has no connection to the mechanic or the car mentioned in the previous sentence. 
+
+Therefore, X is the more plausible option. 
+Therefore, the answer isX.
+pred_before : X.
+pred_after : X
+pred : X
+GT : X
+*************************
+*************************
+12st data
+Q: Which is more plausible, X or Y, as the sentence that will come between R and S?
+R: I left my dog Max in the car with the windows down while I shopped.
+S: I finally went home and discovered Max sitting by my front door.
+X: Max got tired of waiting and knew how to get home as it was not far. He jumped out the window.
+Y: Max got tired of waiting and did not know how to get home as it was far. He jumped out the window.
+A: Let's think step by step.
+
+First, we know that Max was left in the car with the windows down while the speaker shopped. Then, the speaker went home and discovered Max sitting by the front door. 
+
+Based on this information, it seems more plausible that sentence X is the one that will come between R and S. This is because Max was able to get home, which suggests that he knew how to navigate his way back. Additionally, the sentence mentions that Max's home was not far, which further supports the idea that he was able to make his way back on his own. 
+
+Sentence Y, on the other hand, suggests that Max did not know how to get home and jumped out of the window in an attempt to find his way. This seems less plausible given that Max was able to make it back to the speaker's home. 
+
+Therefore, based on the information provided, sentence X is more plausible as the sentence that will come between R and S. 
+Therefore, the answer isX.
+pred_before : X.
+pred_after : X
+pred : X
+GT : X
+*************************
+*************************
+13st data
+Q: Which is more plausible, X or Y, as the sentence that will come between R and S?
+R: My grandmother made key lime pie.
+S: I went to the bathroom to spit it out.
+X: I hated the pie.
+Y: I devoured the pie.
+A: Let's think step by step.
+
+First, we know that the speaker's grandmother made key lime pie. 
+
+Next, we have two options: either the speaker hated the pie or devoured it. 
+
+Given that the speaker went to the bathroom to spit it out, it seems more plausible that they hated the pie rather than devoured it. 
+
+Therefore, X ("I hated the pie") is more plausible as the sentence that will come between R and S. 
+Therefore, the answer isX.
+pred_before : X.
+pred_after : X
+pred : X
+GT : X
+*************************
+accuracy : 61.53846153846154

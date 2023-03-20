@@ -21,7 +21,7 @@ def main():
     decoder = Decoder(args)
     
     print("setup data loader ...")
-    dataloader = setup_data_loader(args)
+    dataloader = setup_data_loader(args, False)
     print_now()
     
     # few shot 어떻게 문장 선정하는지 S-BERT 활용하여 융합
@@ -35,6 +35,7 @@ def main():
     total = 0
     correct_list = []        
     for i, data in enumerate(dataloader):
+        if i+1 < args.start_idx: continue # default 1: 1st data 부터 시작하도록 함 (test 필요)
         print('*************************')
         print("{}st data".format(i+1))
                 
@@ -71,7 +72,6 @@ def main():
         # Clensing of predicted answer ...
         pred = answer_cleansing(args, pred) # Hypothesis 2 << 이런거 처리 어떻게 할지
         
-        # Choose the most frequent answer from the list ...
         print("pred : {}".format(pred))
         print("GT : " + y)
         print('*************************')
@@ -101,7 +101,8 @@ def parse_arguments():
     parser.add_argument(
         "--dataset", type=str, default="commonsensqa", 
             choices=["aqua", "gsm8k", "commonsensqa", "addsub", "multiarith",  "strategyqa", "svamp", 
-                     "singleeq", "bigbench_date", "object_tracking", "coin_flip", "last_letters", "anli", "anli_small"], 
+                     "singleeq", "bigbench_date", "object_tracking", "coin_flip", "last_letters", 
+                     "anli", "anli_small", "anli_sample", "anli_dev"], 
             help="dataset used for experiment"
     )
     
@@ -129,10 +130,16 @@ def parse_arguments():
         "--limit_dataset_size", type=int, default=10, help="whether to limit test dataset size. if 0, the dataset size is unlimited and we use all the samples in the dataset for testing."
     )
     parser.add_argument(
-        "--api_time_interval", type=float, default=2.0, help=""
+        "--api_time_interval", type=float, default=1.2, help=""
     )
     parser.add_argument(
         "--log_dir", type=str, default="./log/", help="log directory"
+    )
+    parser.add_argument(
+        "--start_idx", type=int, default=1, help="start index of test dataset"
+    )
+    parser.add_argument(
+        "--n_few_shot_example", type=int, default=8, help="number of few-shot examples"
     )
     
     args = parser.parse_args()
@@ -179,6 +186,12 @@ def parse_arguments():
         args.direct_answer_trigger = "\nTherefore, the answer is" ########## 수정 필요할수 있음 (second prompt)
     elif args.dataset == "anli_small":
         args.dataset_path = "./dataset/aNLI/test_sample.jsonl"
+        args.direct_answer_trigger = "\nTherefore, the answer is" ########## 수정 필요할수 있음 (second prompt)
+    elif args.dataset == "anli_sample":
+        args.dataset_path = "./dataset/aNLI/fewshot.jsonl"
+        args.direct_answer_trigger = "\nTherefore, the answer is" ########## 수정 필요할수 있음 (second prompt)
+    elif args.dataset == "anli_dev":
+        args.dataset_path = "./dataset/aNLI/dev.jsonl"
         args.direct_answer_trigger = "\nTherefore, the answer is" ########## 수정 필요할수 있음 (second prompt)
     else:
         raise ValueError("dataset is not properly defined ...")

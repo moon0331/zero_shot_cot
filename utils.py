@@ -60,7 +60,7 @@ def decoder_for_gpt3(args, input, max_length, i, k):
     # https://beta.openai.com/account/api-keys
     openai.api_key = os.getenv("OPENAI_API_KEY")
     #print(openai.api_key)
-    openai.api_key = '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'
+    openai.api_key = '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' # DIAL
     
     # Specify engine ...
     # Instruct GPT3
@@ -238,7 +238,7 @@ def data_reader(args):
         assert(len(generations) == len(labels))
 
         # get random indices from len(generations)
-        if args.dataset == 'anli_small':
+        if args.dataset == 'anli_dev':
             n_sample = 64
             indices = np.random.choice(len(generations), n_sample, replace=False)
 
@@ -312,7 +312,7 @@ class MyDataset(Dataset):
         output = self.answers[index]
         return input, output
 
-def setup_data_loader(args):
+def setup_data_loader(args, shuffle_data=True):
 
     # fix randomness of dataloader to ensure reproducibility
     # https://pytorch.org/docs/stable/notes/randomness.html
@@ -332,7 +332,7 @@ def setup_data_loader(args):
     dataset = MyDataset(args)
     
     dataloader = torch.utils.data.DataLoader(dataset,
-                  shuffle=True,
+                  shuffle=shuffle_data,
                   batch_size=args.minibatch_size,
                   drop_last=False,
                   num_workers=dataloader_num_workers,
@@ -439,64 +439,29 @@ def create_demo_text(args, cot_flag):
         z.append("Olivia had 23 dollars. 5 bagels for 3 dollars each will be 5 x 3 = 15 dollars. So she has 23 - 15 dollars left. 23 - 15 is 8.")
         y.append("8")
 
+
+
+    # GPT-3 answer -> GPT 3.5 answer (fixed)
     elif args.dataset.startswith("anli"):
-        # 예시 뽑아서 넣고 제대로 되는지 확인하기
+        with open(f'dev_fewshot_cleaning_done_{args.n_few_shot_example}.txt', 'r') as f:
+            lines = [line[:-1] for line in f.readlines()]
 
-        # 2 8 10 11 16 17 21 22 29 35
+        x_question = ""
+        for i, line in enumerate (lines):
+            if i % 8 in range(5): # 0, 1, 2, 3, 4 (not include "Let's think step by step")
+                x_question += ('\n'+line)
+            elif i % 8 == 5:
+                z_reasoning = line.strip()
+            elif i % 8 == 6:
+                y_answer = line
 
-        x.append("\n".join([
-            "Which is more plausible, X or Y, as the sentence that will come between R and S?",
-            "R: Kelly and her friends decided to go to Indian for lunch.",
-            "S: They vowed never to return.",
-            "X: Kelly and her friends got cancer diagnoses on sunday.",
-            "Y: They were very hungry and their meals took very long to be served."
-        ]))
-        z.append("The first sentence, R, is about Kelly and her friends going to Indian for lunch. The second sentence, S, is about them never returning. So, the third sentence, X or Y, would have to be about their experience at the Indian restaurant. Based on that, Y is more plausible because it is about their experience at the Indian restaurant and how long it took for their meals to be served.")
-        y.append("Y")
+                x_question = x_question.strip()
 
-        x.append("\n".join([
-            "Which is more plausible, X or Y, as the sentence that will come between R and S?",   
-            "R: Jane was going to her job.",
-            "S: Overall, she ended up being late to work.",
-            "X: Jane woke up late and was stuck in traffic.",
-            "Y: On the way home she stepped in dog poop." 
-        ]))
-        z.append("First, Jane was going to her job. This means that she was heading to work, most likely in the morning. Then, she ended up being late to work. This could be for a number of reasons, but we'll assume that it's because something happened on her way to work. The most plausible sentence to come between R and S would be X: Jane woke up late and was stuck in traffic. This is a common occurrence that would make someone late for work. Y: On the way home she stepped in dog poop. is less plausible because it would happen on the way home, not on the way to work.")
-        y.append("X")
+                x.append(x_question)
+                z.append(z_reasoning)
+                y.append(y_answer)
+                x_question = ""
 
-        x.append("\n".join([
-            "Which is more plausible, X or Y, as the sentence that will come between R and S?",
-            "R: Steve was very sad.",
-            "S: Steve wondered if they could ever get back together.",
-            "X: Steve's wife just moved out of the house.",
-            "Y: Steve's wife just moved into the house."
-        ]))
-        z.append("If Steve's wife just moved out of the house, he would be sad. If Steve's wife just moved into the house, he would be happy. So, X is more plausible.")
-        y.append("X")
-
-        x.append("\n".join([
-            'Q: Which is more plausible, X or Y, as the sentence that will come between R and S?', 
-            'R: Jim was on the the United States Olympic track team.', 
-            'S: Jim ended up winning a gold medal!', 
-            "X: Jim trained for years to become the team's best athlete.", 
-            'Y: Jim ran for the French team in the Olympics.'
-        ]))
-        z.append("The first sentence is about Jim being on the United States Olympic track team. The second sentence is about Jim winning a gold medal. So, it is more plausible that the sentence in between would be about Jim training to become the team's best athlete.")
-        y.append("X")
-
-        x.append("\n".join([
-            'Q: Which is more plausible, X or Y, as the sentence that will come between R and S?',
-            'R: It is usually calm and warm in the morning, in Florida.',
-            'S: So I went outside to play.',
-            "X: It's best to go outside in pretty weather.",
-            'Y: I wanted to sleep in on this morning.'
-        ]))
-        z.append("The speaker wants to do something (play), and it's morning. The weather is good, so X is more plausible.")
-        y.append("X")
-
-        x.append("\n".join([
-
-        ]))
 
     else:
         raise ValueError("dataset is not properly defined ...")
@@ -516,3 +481,140 @@ def create_demo_text(args, cot_flag):
                          args.direct_answer_trigger_for_fewshot + " " + y[i] + ".\n\n"
     
     return demo_text
+
+def append_xyz_legacy(x, y, z):
+
+    # 예시 뽑아서 넣고 제대로 되는지 확인하기
+
+    # 1 4 6 18 23 30 34 38 51 52 54 57 61 (순서 변동됨)
+    # X 5개, Y 8개
+
+    x.append("\n".join([
+        "Which is more plausible, X or Y, as the sentence that will come between R and S?",
+        "R: Tina has two dogs.",
+        "S: They became best friends and enjoy playing in the backyard together.",
+        "X: Tina had just gotten a puppy and was worried about how much work it would be.",
+        "Y: Tina lets the dogs run around in her backyard."
+    ]))
+    z.append("If Tina has two dogs, then option X is not possible because it would imply that she only has one dog. That leaves us with option Y.")
+    y.append("Y")
+
+    x.append("\n".join([
+        "Which is more plausible, X or Y, as the sentence that will come between R and S?",
+        "R: Al couldn't hear anything out of his new headphones.",
+        "S: They told Al that the headphone jack was turned off.",
+        "X: Al called customer support.",
+        "Y: The employee's complained to Al."
+    ]))
+    z.append("If Al couldn't hear anything out of his new headphones, the next logical step would be to call customer support. This makes X more plausible than Y.")
+    y.append("X")
+
+    x.append("\n".join([
+        "Which is more plausible, X or Y, as the sentence that will come between R and S?",
+        "R: A man made a wishing well next to his mailbox.",
+        "S: He paid for the entire meal in change.",
+        "X: The change filled up with wishing wells.",
+        "Y: Every person who walked by tossed in a coin."
+    ]))
+    z.append("The man made a wishing well next to his mailbox. This implies that he wanted people to make wishes. Most likely, he would want people to give him money for their wishes, so Y is more plausible.")
+    y.append("Y")
+
+    x.append("\n".join([
+        "Which is more plausible, X or Y, as the sentence that will come between R and S?",
+        "R: Kathy was responsible for buying the groceries.",
+        "S: Now Kathy never goes shopping without planning and a list.",
+        "X: She always used to forget things.",
+        "Y: Kathy spent a lot of money, and still does."
+    ]))
+    z.append("If Kathy used to forget things, then she probably didn't have a list. This would mean that Kathy probably didn't plan her shopping trips. So, \"She always used to forget things\" is more plausible than \"Kathy spent a lot of money, and still does.\"")
+    y.append("X")
+
+    x.append("\n".join([
+        "Which is more plausible, X or Y, as the sentence that will come between R and S?",
+        "R: Larry was running late for work.",
+        "S: He had gotten the wrong one in his hurry.",
+        "X: He picked out a tie as he was running out of the door.",
+        "Y: He make sure he get the correct tie as he was running out of the door."
+    ]))
+    z.append("If Larry was running late for work, the most plausible sentence to come between R and S would be X. This is because if Larry was hurrying, he would not have time to make sure he got the correct tie.")
+    y.append("X")
+
+    x.append("\n".join([
+        "Which is more plausible, X or Y, as the sentence that will come between R and S?",
+        "R: Tim needed a fruit to eat.",
+        "S: Finally, he found some fresh grapes to eat.",
+        "X: He went to the near by super market.",
+        "Y: Tim looked for a long time in the messy fridge."
+    ]))
+    z.append("Tim needs a fruit to eat and finally finds some grapes to eat. This implies that he was looking for a fruit to eat. The sentence in between should continue this thought. Option Y is a better continuation because it states that Tim looked for a long time in the messy fridge. This implies that he was looking for a fruit to eat and finally found some grapes to eat.")
+    y.append("Y")
+
+    x.append("\n".join([
+        "Which is more plausible, X or Y, as the sentence that will come between R and S?",
+        "R: Joey was a second grader that like to color in coloring books.",
+        "S: Joey felt proud of himself.",
+        "X: Joey mis-colored the picture.",
+        "Y: Joey colored in 20 books."
+    ]))
+    z.append("If Joey was proud of himself, it's more likely that he completed a lot of coloring books, rather than making a mistake while coloring. Therefore, Y is more plausible than X.")
+    y.append("Y")
+
+    x.append("\n".join([
+        "Which is more plausible, X or Y, as the sentence that will come between R and S?",
+        "R: Andrea's dad asked her to get firewood.",
+        "S: Then, she brought them inside.",
+        "X: Andrea picked up as much wood as she could.",
+        "Y: Andrea went and found fireflies."
+    ]))
+    z.append("Andrea's dad asked her to get firewood, so the next sentence should be related to that. Andrea went and found fireflies is not related, so X is more plausible.")
+    y.append("X")
+
+    # x.append("\n".join([
+    #     "Which is more plausible, X or Y, as the sentence that will come between R and S?",
+    #     "R: I wanted Italian food.",
+    #     "S: Alas, I ruined the cream base so the dish tasted terrible.",
+    #     "X: She decided to make alfredo sauce.",
+    #     "Y: I tried a new recipe and followed the steps closely."
+    # ]))
+    # z.append("The speaker wanted Italian food, so X is more plausible because it is about the speaker making a decision to make a specific Italian dish. Y is less plausible because it is about the speaker trying a new recipe, which could be any type of dish.")
+    # y.append("X")
+
+    # x.append("\n".join([
+    #     "Which is more plausible, X or Y, as the sentence that will come between R and S?",
+    #     "R: Sam had really bad social anxiety.",
+    #     "S: Sam's social anxiety decreased after exposing herself to more people.",
+    #     "X: Sam had to go out and meet people to get rid of it.",
+    #     "Y: Sam made an effort at trying to be alone more often.",
+    # ]))
+    # z.append("In order for Sam's social anxiety to decrease, she would have to do something to make that happen. Option X is more plausible because it states that Sam had to go out and meet people in order to get rid of her social anxiety. Option Y does not make as much sense because it states that Sam tried to be alone more often, which would not help her social anxiety decrease.")
+    # y.append("X")
+
+    # x.append("\n".join([
+    #     "Which is more plausible, X or Y, as the sentence that will come between R and S?",
+    #     "R: There was a mechanic who didn't pay attention.",
+    #     "S: The customer was angry he didn't pay attention to details.",
+    #     "X: He messed up a car by not giving it the care it needed.",
+    #     "Y: The cook accidentally messed up a paint job."
+    # ]))
+    # z.append("The first sentence is about a mechanic, so it is more likely that the second sentence is also about the mechanic. This makes X more plausible than Y.")
+    # y.append("X")
+
+    # x.append("\n".join([
+    #     "Which is more plausible, X or Y, as the sentence that will come between R and S?",
+    #     "R: I left my dog Max in the car with the windows down while I shopped.",
+    #     "S: I finally went home and discovered Max sitting by my front door.",
+    #     "X: Max got tired of waiting and knew how to get home as it was not far. He jumped out the window.",
+    #     "Y: Max got tired of waiting and did not know how to get home as it was far. He jumped out the window."
+    # ]))
+    # z.append("The first sentence, R, tells us that the speaker left their dog in the car while they went shopping. The second sentence, S, tells us that the speaker returned home to find their dog waiting by the door. So, we need a sentence to explain how the dog got from the car to the speaker's home. Option X is more plausible, because it explains how the dog got home. Option Y is less plausible, because it does not explain how the dog got home.")
+    # y.append("X")
+
+    # x.append("\n".join([
+    #     "Which is more plausible, X or Y, as the sentence that will come between R and S?",
+    #     "R: My grandmother made key lime pie.",
+    #     "S: I went to the bathroom to spit it out.",
+    #     "X: I hated the pie.",
+    #     "Y: I devoured the pie."
+    # ]))
+    # z.append("The first sentence, R, is about the speaker's grandmother making key lime pie. The second sentence, S, is about the speaker going to the bathroom to spit out what we can assume is key lime pie. So, we need a sentence that comes between R and S that tells us the speaker's opinion on the key lime pie. The most logical sentence to come between R and S would be X, \"I hated the pie.\" This is because it makes the most sense that the speaker would go to the bathroom to spit out the pie if they hated it.")
+    # y.append("X")

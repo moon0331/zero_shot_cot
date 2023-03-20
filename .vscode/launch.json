@@ -13,9 +13,9 @@
             "justMyCode": true,
             "args": [
                 "--dataset", "anli_small",
-                "--model", "gpt3-xl",
-                "--method", "zero_shot_cot",
-                //"--limit_dataset_size", "20"
+                "--model", "gpt3.5",
+                "--method", "few_shot",
+                "--limit_dataset_size", "10"
             ]
         }
     ]
