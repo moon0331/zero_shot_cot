@@ -60,7 +60,7 @@ def decoder_for_gpt3(args, input, max_length, i, k):
     # https://beta.openai.com/account/api-keys
     openai.api_key = os.getenv("OPENAI_API_KEY")
     #print(openai.api_key)
-    openai.api_key = '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' # DIAL
+    openai.api_key = '' # DIAL
     
     # Specify engine ...
     # Instruct GPT3
