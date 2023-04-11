@@ -12,10 +12,10 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "--dataset", "anli_small",
-                "--model", "gpt3.5",
-                "--method", "few_shot",
-                "--limit_dataset_size", "10"
+                //"--dataset", "anli_small",
+                //"--model", "gpt3.5",
+                "--method", "zero_shot_2",
+                "--limit_dataset_size", "50"
             ]
         }
     ]

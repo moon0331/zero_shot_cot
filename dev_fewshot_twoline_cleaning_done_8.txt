@@ -1,0 +1,47 @@
+Which statement is more plausible, X or Y?
+X: Kyle collected many things. Kyle read a Marvel comic. Kyle was really into Marvel heros.
+Y: Kyle collected many things. Kyle gave away his marvel action figures. Kyle was really into Marvel heros.
+First, we know that Kyle collected many things. This statement is consistent in both X and Y. Next, in statement X, it is mentioned that Kyle read a Marvel comic and was really into Marvel heroes. This seems plausible as it is common for collectors to have a strong interest in the items they collect. In statement Y, it is mentioned that Kyle gave away his Marvel action figures. This seems less plausible as it contradicts the previous statement that Kyle was really into Marvel heroes. It is unlikely that someone who is really into something would give away their collection of it. Therefore, statement X is more plausible. 
+X
+
+Which statement is more plausible, X or Y?
+X: Troy got a Great Dane pup last Friday. The puppy was very kind. He's spent hours every day trying to train him since then.
+Y: Troy got a Great Dane pup last Friday. The puppy tore up the pillows and destroyed his model airplane. He's spent hours every day trying to train him since then.
+First, we know that Troy got a Great Dane pup last Friday. This statement is the same in both X and Y. Next, we have two different statements about the puppy's behavior. In X, the puppy is described as "very kind" and in Y, the puppy is described as destructive. Based on common knowledge about puppies, it is more plausible that the puppy in Y tore up pillows and destroyed the model airplane. Puppies are known for being curious and playful, and it is not uncommon for them to chew on things they shouldn't. Therefore, statement Y is more plausible. 
+Y
+
+Which statement is more plausible, X or Y?
+X: I looked over at the teenager and asked her to quiet down. The teenager scoffed and kept being loud. Sadly, I had to tell her not to come if she could not listen.
+Y: I looked over at the teenager and asked her to quiet down. The teenager still would not climb down. Sadly, I had to tell her not to come if she could not listen.
+First, both statements involve a teenager being asked to quiet down. This is plausible in many situations, such as in a movie theater or library. Next, in statement X, the teenager scoffs and continues to be loud. This is also a plausible response from a teenager who may be feeling rebellious or disrespectful. In statement Y, the teenager is described as "still would not climb down." This phrase is unclear and does not make sense in the context of the situation. Therefore, statement X is more plausible. 
+X
+
+Which statement is more plausible, X or Y?
+X: Blanca had a disagreement with her best friend. Blanca decided to forget about it and spend time with her other friends. They had a fun girl's night in.
+Y: Blanca had a disagreement with her best friend. Sara and her friend finally agreed on a plan. They had a fun girl's night in.
+X is more plausible because it states that Blanca decided to forget about the disagreement and spend time with her other friends. This is a common and reasonable response to a disagreement with a friend. Y, on the other hand, introduces a new character (Sara) and suggests that they came up with a plan to have a fun night in. This seems less likely and is not necessary to explain how Blanca moved on from the disagreement. 
+X
+
+Which statement is more plausible, X or Y?
+X: Robert was planning on having a nice dinner with his girlfriend Kate. Kate was planning on breaking up with David. However she lied to Robert and told him she loved it.
+Y: Robert was planning on having a nice dinner with his girlfriend Kate. She didn't really like it. However she lied to Robert and told him she loved it.
+First, we know that Robert and Kate were planning on having a nice dinner together. This is the same in both statements. Next, in statement X, we learn that Kate was planning on breaking up with David. This information is not present in statement Y. Then, in statement X, we are told that Kate lied to Robert and told him she loved the dinner. In statement Y, we are told that Kate didn't really like the dinner but still lied to Robert and told him she loved it. Based on this information, statement Y seems more plausible. It is more likely that Kate would lie about enjoying the dinner rather than lying about breaking up with someone. Additionally, statement Y does not include any information that contradicts what we know about the situation, while statement X introduces new information that may be less likely. 
+Y
+
+Which statement is more plausible, X or Y?
+X: Mimi and Alice had a favorite hangout spot. the spot get ruined. Now all they had of their favorite spot were the memories they created
+Y: Mimi and Alice had a favorite hangout spot. Mimi and Alice's favorite spot was preserved as a historical location. Now all they had of their favorite spot were the memories they created
+X is more plausible because it is common for favorite hangout spots to get ruined or destroyed over time. It is also common for people to only have memories left of a place that was important to them. On the other hand, Y is less plausible because it is not common for a personal hangout spot to be preserved as a historical location. It is more likely that historical locations are preserved for their cultural or historical significance, rather than personal memories of individuals. 
+X
+
+Which statement is more plausible, X or Y?
+X: Sally had been out all night. Sally was awake and wanted to go back to the pool. Finally, she made it to her room.
+Y: Sally had been out all night. Sally was tipsy, and had trouble finding her way. Finally, she made it to her room.
+First, we know that Sally had been out all night. This statement is the same in both X and Y. Next, in statement X, it says that Sally was awake and wanted to go back to the pool. This seems unlikely if she had been out all night and was likely tired. Therefore, statement Y seems more plausible as it suggests that Sally was tipsy and had trouble finding her way back to her room. Overall, statement Y is more plausible. 
+Y
+
+Which statement is more plausible, X or Y?
+X: George was about to participate in his first professional fight. George trained hard for two days before the fight. George proved his skills and won his first match.
+Y: George was about to participate in his first professional fight. George was the underdog, but he had been training months to compete in this event. George proved his skills and won his first match.
+X states that George trained hard for only two days before the fight, which seems unlikely to be enough time to prepare for a professional fight. On the other hand, Y states that George had been training for months, which is a more plausible amount of time to prepare for such an event. Therefore, Y is the more plausible statement. 
+Y

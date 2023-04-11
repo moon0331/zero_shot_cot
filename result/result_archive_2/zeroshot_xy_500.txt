@@ -1,0 +1,13 @@
+*****************************
+Namespace(api_log_file_name=None, api_time_interval=1.5, cot_trigger="Let's think step by step.", cot_trigger_no=1, dataset='anli_small', dataset_path='./dataset/aNLI/test_sample.jsonl', direct_answer_trigger='\nTherefore, the answer is', direct_answer_trigger_for_fewshot='The answer is', direct_answer_trigger_for_zeroshot='The answer is', direct_answer_trigger_for_zeroshot_cot='\nTherefore, the answer is', limit_dataset_size=0, log_dir='./log/', max_length_cot=256, max_length_direct=32, max_num_worker=3, method='zero_shot_xy', minibatch_size=1, model='gpt3.5', n_few_shot_example=8, random_seed=1, start_idx=1)
+*****************************
+2023/04/04 22:26:50
+setup data loader ...
+worker_seed : 1
+dataloader_num_workers: 3
+dataset : anli_small
+data size : 500
+average num of words for each sample : 45.926
+2023/04/04 22:26:50
+*************************
+1st data

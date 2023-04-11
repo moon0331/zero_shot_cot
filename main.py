@@ -16,18 +16,23 @@ def main():
     
     # print("OPENAI_API_KEY:")
     # print(os.getenv("OPENAI_API_KEY"))
-    
+
+    if args.key_num == 1:
+        api_key = 
+    elif args.key_num == 2:
+        api_key = 
+
     # Initialize decoder class (load model and tokenizer) ...
-    decoder = Decoder(args)
+    decoder = Decoder(args, api_key)
     
     print("setup data loader ...")
     dataloader = setup_data_loader(args, False)
     print_now()
     
     # few shot 어떻게 문장 선정하는지 S-BERT 활용하여 융합
-    if args.method == "few_shot":
+    if args.method.startswith('few_shot') and not args.method.startswith('few_shot_cot'): # == "few_shot":
         demo = create_demo_text(args, cot_flag=False)
-    elif args.method == "few_shot_cot":
+    elif args.method.startswith('few_shot_cot'): # == "few_shot_cot":
         demo = create_demo_text(args, cot_flag=True)
     else:
         pass
@@ -44,13 +49,13 @@ def main():
         x = "Q: " + x[0] + "\n" + "A:"
         y = y[0].strip()
         
-        if args.method == "zero_shot":
+        if args.method.startswith('zero_shot') and not args.method.startswith('zero_shot_cot'): # == "zero_shot":
             x = x + " " + args.direct_answer_trigger_for_zeroshot
-        elif args.method == "zero_shot_cot":
+        elif args.method.startswith('zero_shot_cot'): # == "zero_shot_cot":
             x = x + " " + args.cot_trigger
-        elif args.method == "few_shot":
+        elif args.method.startswith('few_shot') and not args.method.startswith('few_shot_cot'): # == "few_shot":
             x = demo + x
-        elif args.method == "few_shot_cot":
+        elif args.method.startswith('few_shot_cot'): # == "few_shot_cot":
             x = demo + x
         else:
             raise ValueError("method is not properly defined ...")
@@ -60,14 +65,14 @@ def main():
         z = decoder.decode(args, x, max_length, i, 1)
 
         # Answer extraction for zero-shot-cot ...
-        if args.method == "zero_shot_cot":
+        if args.method.startswith('zero_shot_cot'): # == "zero_shot_cot":
             z2 = x + z + " " + args.direct_answer_trigger_for_zeroshot_cot
             max_length = args.max_length_direct
             pred = decoder.decode(args, z2, max_length, i, 2)
-            print(z2 + pred)
+            print(z2 + ' ' + pred) # 미관상
         else:
             pred = z
-            print(x + pred)
+            print(x + ' ' + pred) # 미관상
 
         # Clensing of predicted answer ...
         pred = answer_cleansing(args, pred) # Hypothesis 2 << 이런거 처리 어떻게 할지
@@ -99,7 +104,7 @@ def parse_arguments():
     parser.add_argument("--random_seed", type=int, default=1, help="random seed")
     
     parser.add_argument(
-        "--dataset", type=str, default="commonsensqa", 
+        "--dataset", type=str, default="anli_small", 
             choices=["aqua", "gsm8k", "commonsensqa", "addsub", "multiarith",  "strategyqa", "svamp", 
                      "singleeq", "bigbench_date", "object_tracking", "coin_flip", "last_letters", 
                      "anli", "anli_small", "anli_sample", "anli_dev"], 
@@ -111,12 +116,28 @@ def parse_arguments():
     parser.add_argument("--max_num_worker", type=int, default=3, help="maximum number of workers for dataloader")
     
     parser.add_argument(
-        "--model", type=str, default="gpt3", choices=["gpt3", "gpt3-medium", "gpt3-large", "gpt3-xl", "gpt3.5"], help="model used for decoding. Note that 'gpt3' are the smallest models."
+        "--model", type=str, default="gpt3.5", choices=["gpt3", "gpt3-medium", "gpt3-large", "gpt3-xl", "gpt3.5"], help="model used for decoding. Note that 'gpt3' are the smallest models."
     )
     
     parser.add_argument(
-        "--method", type=str, default="zero_shot_cot", choices=["zero_shot", "zero_shot_cot", "few_shot", "few_shot_cot"], help="method"
+        "--method", type=str, default="zero_shot_cot", choices=[
+        "zero_shot", "zero_shot_cot", "few_shot", "few_shot_cot",
+        "zero_shot_two_line", "zero_shot_cot_two_line", "few_shot_two_line", "few_shot_cot_two_line",
+        "zero_shot_xy", "zero_shot_cot_xy", "few_shot_xy", "few_shot_cot_xy",
+        # "zero_shot_0", "zero_shot_cot_0",
+        # "zero_shot_1", "zero_shot_cot_1",
+        ] + [f'zero_shot_{i}' for i in range(16)] + [f'zero_shot_cot_{i}' for i in range(16)], 
+        help="method"
     )
+
+    parser.add_argument(
+        "--key_num", type=int, default=1, help="key number. 1 for DIAL(Default), 2 for Individual"
+    )
+
+    parser.add_argument(
+        "--add_rest", action='store_true', help="whether to add restriction (X, Y, Both, Neither). Default: False"
+    )
+
     parser.add_argument(
         "--cot_trigger_no", type=int, default=1, help="A trigger sentence that elicits a model to execute chain of thought"
     )
@@ -181,16 +202,17 @@ def parse_arguments():
     elif args.dataset == "last_letters":
         args.dataset_path = "./dataset/last_letters/last_letters.json"
         args.direct_answer_trigger = "\nTherefore, the answer is"
-    elif args.dataset == "anli":
+    elif args.dataset == "anli": # test set 전체
         args.dataset_path = "./dataset/aNLI/test.jsonl"
         args.direct_answer_trigger = "\nTherefore, the answer is" ########## 수정 필요할수 있음 (second prompt)
-    elif args.dataset == "anli_small":
+    elif args.dataset == "anli_small": # 500개
         args.dataset_path = "./dataset/aNLI/test_sample.jsonl"
         args.direct_answer_trigger = "\nTherefore, the answer is" ########## 수정 필요할수 있음 (second prompt)
-    elif args.dataset == "anli_sample":
-        args.dataset_path = "./dataset/aNLI/fewshot.jsonl"
+    elif args.dataset == "anli_sample": # fewshot을 위한 임시 답변 생성
+        print('anli_sample is for few-shot sampling.')
+        args.dataset_path = "./dataset/aNLI/fewshot_candidate.jsonl"
         args.direct_answer_trigger = "\nTherefore, the answer is" ########## 수정 필요할수 있음 (second prompt)
-    elif args.dataset == "anli_dev":
+    elif args.dataset == "anli_dev": # dev set 전체
         args.dataset_path = "./dataset/aNLI/dev.jsonl"
         args.direct_answer_trigger = "\nTherefore, the answer is" ########## 수정 필요할수 있음 (second prompt)
     else:
@@ -238,11 +260,3 @@ def parse_arguments():
 
 if __name__ == "__main__":
     main()
-
-"""
-메모
-Zero-shot : 왜 모든 것이 hyp2로 예측되는가
-Zero-shot-CoT with GPT3-xl : hyp2가 아니라 Hypothesis 2 이런식으로 나오는 경우 존재
-
-python main.py >> log.log 로 로그 쓰기 가능
-"""

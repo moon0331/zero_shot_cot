@@ -51,16 +51,16 @@ def print_now(return_flag=0):
         pass
 
 # Sentence Generator (Decoder) for GPT-3 ...
-def decoder_for_gpt3(args, input, max_length, i, k):
+def decoder_for_gpt3(args, input, max_length, i, k, api_key):
     
     # GPT-3 API allows each users execute the API within 60 times in a minute ...
     # time.sleep(1)
     time.sleep(args.api_time_interval)
     
     # https://beta.openai.com/account/api-keys
-    openai.api_key = os.getenv("OPENAI_API_KEY")
+    # openai.api_key = os.getenv("OPENAI_API_KEY")
     #print(openai.api_key)
-    openai.api_key = '' # DIAL
+    openai.api_key = api_key
     
     # Specify engine ...
     # Instruct GPT3
@@ -102,11 +102,12 @@ def decoder_for_gpt3(args, input, max_length, i, k):
         return response["choices"][0]["text"]
 
 class Decoder():
-    def __init__(self, args):
+    def __init__(self, args, api_key):
+        self.api_key = api_key
         print_now()
  
     def decode(self, args, input, max_length, i, k):
-        response = decoder_for_gpt3(args, input, max_length, i, k)
+        response = decoder_for_gpt3(args, input, max_length, i, k, self.api_key)
         return response
 
 def data_reader(args):
@@ -238,19 +239,19 @@ def data_reader(args):
         assert(len(generations) == len(labels))
 
         # get random indices from len(generations)
-        if args.dataset == 'anli_dev':
-            n_sample = 64
-            indices = np.random.choice(len(generations), n_sample, replace=False)
+        # if args.dataset == 'anli_dev':
+        #     n_sample = 64
+        #     indices = np.random.choice(len(generations), n_sample, replace=False)
 
-            # get questions and answers from given indices
-            temp_g = []
-            temp_l = []
-            for idx in indices:
-                temp_g.append(generations[idx])
-                temp_l.append(labels[idx])
+        #     # get questions and answers from given indices
+        #     temp_g = []
+        #     temp_l = []
+        #     for idx in indices:
+        #         temp_g.append(generations[idx])
+        #         temp_l.append(labels[idx])
             
-            generations = temp_g
-            labels = temp_l
+        #     generations = temp_g
+        #     labels = temp_l
 
         # 다음 형식에 맞게 questions과 answers 만들기
         '''
@@ -274,14 +275,58 @@ def data_reader(args):
         hyp1, hyp2 -> X, Y
         '''
 
-        for i, (g, a) in enumerate(zip(generations, labels)):
+        if args.method.endswith('two_line'): # 두 줄로 물어보기
+            for i, (g, a) in enumerate(zip(generations, labels)):
+                xx = '{} {} {}'.format(g['obs1'], g['hyp1'], g['obs2'])
+                yy = '{} {} {}'.format(g['obs1'], g['hyp2'], g['obs2'])
+                q = 'Which statement is more plausible, X or Y?\nX: {}\nY: {}'.format(xx, yy)
+                a = 'XY'[int(a)-1]
+                questions.append(q)
+                answers.append(a)
+        elif args.method.endswith('xy'): # XY 형태
+            for i, (g, a) in enumerate(zip(generations, labels)):
+                obs_obs = '{} {}'.format(g['obs1'], g['obs2'])
+                q = 'Which is more plausible, X or Y, to describe the following situation?\n{}\nX: {}\nY: {}'.format(obs_obs, g['hyp1'], g['hyp2'])
+                a = 'XY'[int(a)-1]
+                questions.append(q)
+                answers.append(a)
+        elif args.method.endswith(tuple([f'_{i}'for i in range(16)])): # 1번째 형태 (full script)
+            question = ['Abductive reasoning is inference to the most plausible explanation. Given observations R and S, your task is to select the most plausible explanatory hypothesis. There are two available hypothesizes, X and Y. Please select hypothesis which is more plausible when observations are given.', 
+                        'Which hypothesis, X or Y, has more explanatory power for the given observations R and S?',
+                        'There are two hypotheses, X and Y, to explain two observations, R and S. Which of the hypotheses X and Y has more power to explain the observations?',
+                        'From an abductive reasoning perspective, given two observations R and S, which of the two hypothesis X and Y is more plausible?',
+                        'Given two observations R and S, find the best hypothesis between X and Y that explains the observations.',
+                        'Which sentence between X and Y describes two observations R and S more plausibly?',
+                        'Which statement, X or Y, provides a better description of the two observations R and S?',
+                        'Abductive reasoning is a form of logical reasoning that seeks the simplest and most likely conclusion from a set of observations. Find the best hypothesis between X and Y that best fits the given observations R and S.',
+                        'Which hypothesis, X or Y, makes more sense when it is between two observations?',
+                        'In terms of abductive reasoning, which sentence, X or Y, provides better explanatory power between two observations R and S?',
+                        'Abductive reasoning is inference to the most plausible explanation. Given observations R and S, your task is to select the most plausible explanatory hypothesis. Given two observations R and S, which of the two hypothesis X and Y is more plausible?',
+                        'Abductive reasoning is inference to the most plausible explanation. Given observations R and S, your task is to select the most plausible explanatory hypothesis. Given two observations R and S, find the best hypothesis between X and Y that explains the observations.',
+                        'Which is more plausible, X or Y, as the sentence that will come between R and S?',
+                        '',
+                        '',
+                        ''
+                        ][int(args.method.split('_')[-1])]
+            
+            if args.add_rest:
+                question += ' The final answer should be a single word "X", "Y", "Both", or "Neither".' # 제약조건
+
+            for i, (g, a) in enumerate(zip(generations, labels)):
+                q = '{}\nR: {}\nS: {}\nX: {}\nY: {}'.format(question, g['obs1'], g['obs2'], g['hyp1'], g['hyp2'])
+                a = 'XY'[int(a)-1]
+                questions.append(q)
+                answers.append(a)
+        else:
+            # 기본
             question = 'Which is more plausible, X or Y, as the sentence that will come between R and S?'
-            # q = 'R: {}\nS: {}\nX: {}\nY: {}\nQ: {}'.format(g['obs1'], g['obs2'], g['hyp1'], g['hyp2'], question)
-            q = '{}\nR: {}\nS: {}\nX: {}\nY: {}'.format(question, g['obs1'], g['obs2'], g['hyp1'], g['hyp2'])
-            # a = 'hyp{}'.format(a)
-            a = 'XY'[int(a)-1]
-            questions.append(q)
-            answers.append(a)
+            for i, (g, a) in enumerate(zip(generations, labels)):
+                # q = 'R: {}\nS: {}\nX: {}\nY: {}\nQ: {}'.format(g['obs1'], g['obs2'], g['hyp1'], g['hyp2'], question)
+                q = '{}\nR: {}\nS: {}\nX: {}\nY: {}'.format(question, g['obs1'], g['obs2'], g['hyp1'], g['hyp2'])
+                # a = 'hyp{}'.format(a)
+                a = 'XY'[int(a)-1]
+                questions.append(q)
+                answers.append(a)
         
     else:
         raise ValueError("dataset is not properly defined ...")
@@ -347,7 +392,7 @@ def answer_cleansing(args, pred):
 
     print("pred_before : " + pred)
     
-    if args.method in ("few_shot", "few_shot_cot"):
+    if args.method.startswith(("few_shot", "few_shot_cot")): # in ("few_shot", "few_shot_cot"):
         preds = pred.split(args.direct_answer_trigger_for_fewshot)
         answer_flag = True if len(preds) > 1 else False 
         pred = preds[-1]
@@ -369,7 +414,7 @@ def answer_cleansing(args, pred):
     elif args.dataset == "last_letters":
         pred = re.sub("\"|\'|\n|\.|\s","", pred)
         pred = [pred]
-    elif args.dataset.startswith('anli'):
+    elif args.dataset.startswith('anli'): # both나 neither 자동 삭제됨
         # pred = re.findall(r'hyp1|hyp2', pred.lower())
         pred = re.findall(r'X|Y', pred)
     else:
@@ -379,14 +424,14 @@ def answer_cleansing(args, pred):
     if len(pred) == 0:
         pred = ""
     else:
-        if args.method in ("few_shot", "few_shot_cot"):
+        if args.method.startswith(("few_shot", "few_shot_cot")): # in ("few_shot", "few_shot_cot"):
             if answer_flag:
                 # choose the first element in list ...
                 pred = pred[0]
             else:
                 # choose the last element in list ...
                 pred = pred[-1]
-        elif args.method in ("zero_shot", "zero_shot_cot"):
+        elif args.method.startswith(("zero_shot", "zero_shot_cot")): # in ("zero_shot", "zero_shot_cot"):
             # choose the first element in list ...
             pred = pred[0]
         else:
@@ -443,24 +488,49 @@ def create_demo_text(args, cot_flag):
 
     # GPT-3 answer -> GPT 3.5 answer (fixed)
     elif args.dataset.startswith("anli"):
-        with open(f'dev_fewshot_cleaning_done_{args.n_few_shot_example}.txt', 'r') as f:
-            lines = [line[:-1] for line in f.readlines()]
+        if args.method.endswith('two_line'): # XYA
+            with open(f'dev_fewshot_twoline_cleaning_done_{args.n_few_shot_example}.txt', 'r') as f:
+                lines = [line[:-1] for line in f.readlines()]
+            x_question = ""
+            for i, line in enumerate (lines):
+                if i % 6 in range(3): # 0, 1, 2, 3, 4 (not include "Let's think step by step")
+                    x_question += ('\n'+line)
+                elif i % 6 == 3:
+                    z_reasoning = line.strip()
+                elif i % 6 == 4:
+                    y_answer = line
 
-        x_question = ""
-        for i, line in enumerate (lines):
-            if i % 8 in range(5): # 0, 1, 2, 3, 4 (not include "Let's think step by step")
-                x_question += ('\n'+line)
-            elif i % 8 == 5:
-                z_reasoning = line.strip()
-            elif i % 8 == 6:
-                y_answer = line
+                    x_question = x_question.strip()
 
-                x_question = x_question.strip()
+                    x.append(x_question)
+                    z.append(z_reasoning)
+                    y.append(y_answer)
+                    x_question = ""
 
-                x.append(x_question)
-                z.append(z_reasoning)
-                y.append(y_answer)
-                x_question = ""
+        elif args.method.endswith('xy'): # XY
+            raise NotImplementedError("xy is not implemented yet ...")
+        
+        elif args.method.endswith(tuple([f'_{i}' for i in range(16)])): # 1번 방법
+            raise NotImplementedError(f"{args.method} is not implemented yet ...")
+        
+        else: # QRSXYA
+            with open(f'dev_fewshot_cleaning_done_{args.n_few_shot_example}.txt', 'r') as f:
+                lines = [line[:-1] for line in f.readlines()]
+            x_question = ""
+            for i, line in enumerate (lines):
+                if i % 8 in range(5): # 0, 1, 2, 3, 4 (not include "Let's think step by step")
+                    x_question += ('\n'+line)
+                elif i % 8 == 5:
+                    z_reasoning = line.strip()
+                elif i % 8 == 6:
+                    y_answer = line
+
+                    x_question = x_question.strip()
+
+                    x.append(x_question)
+                    z.append(z_reasoning)
+                    y.append(y_answer)
+                    x_question = ""
 
 
     else:
@@ -475,11 +545,11 @@ def create_demo_text(args, cot_flag):
     for i in index_list:
         if cot_flag:
             demo_text += "Q: " + x[i] + "\nA: " + z[i] + " " + \
-                         args.direct_answer_trigger_for_fewshot + " " + y[i] + ".\n\n"
+                        args.direct_answer_trigger_for_fewshot + " " + y[i] + ".\n\n"
         else:
             demo_text += "Q: " + x[i] + "\nA: " + \
-                         args.direct_answer_trigger_for_fewshot + " " + y[i] + ".\n\n"
-    
+                        args.direct_answer_trigger_for_fewshot + " " + y[i] + ".\n\n"
+
     return demo_text
 
 def append_xyz_legacy(x, y, z):
